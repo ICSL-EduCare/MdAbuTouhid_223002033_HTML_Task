@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Storage, Web Workers and SSE</title>
+</head>
+<body>
+  <h1>Web Storage</h1>
+  <input id="name" placeholder="Enter name">
+  <button onclick="saveName()">Save</button>
+  <button onclick="loadName()">Load</button>
+  <p id="result"></p>
+
+  <h1>Web Worker</h1>
+  <button onclick="startWorker()">Start Worker</button>
+  <p id="workerResult"></p>
+
+  <h1>Server-Sent Events</h1>
+  <p id="sseResult">SSE requires a server endpoint.</p>
+
+  <script>
+    function saveName() {
+      localStorage.setItem("name", document.getElementById("name").value);
+    }
+
+    function loadName() {
+      document.getElementById("result").textContent =
+        localStorage.getItem("name") || "Nothing saved.";
+    }
+
+    let worker;
+
+    function startWorker() {
+      if (typeof Worker === "undefined") {
+        document.getElementById("workerResult").textContent =
+          "Web Workers are not supported.";
+        return;
+      }
+
+      const code = `
+        let count = 0;
+        setInterval(() => {
+          count++;
+          postMessage(count);
+        }, 1000);
+      `;
+
+      const blob = new Blob([code], {type: "text/javascript"});
+      worker = new Worker(URL.createObjectURL(blob));
+
+      worker.onmessage = event => {
+        document.getElementById("workerResult").textContent =
+          "Worker count: " + event.data;
+      };
+    }
+
+    if (typeof EventSource !== "undefined") {
+      // Example only:
+      // const source = new EventSource("events.php");
+      // source.onmessage = event => {
+      //   document.getElementById("sseResult").textContent = event.data;
+      // };
+    }
+  </script>
+</body>
+</html>

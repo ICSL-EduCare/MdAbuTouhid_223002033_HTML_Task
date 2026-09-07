@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Geolocation and Drag & Drop</title>
+  <style>
+    #dropZone { width: 300px; height: 120px; border: 2px dashed #555; padding: 20px; }
+    #dragItem { width: 100px; padding: 15px; background: #ddd; cursor: move; }
+  </style>
+</head>
+<body>
+  <h1>Geolocation</h1>
+  <button onclick="getLocation()">Get My Location</button>
+  <p id="location"></p>
+
+  <h1>Drag and Drop</h1>
+  <div id="dragItem" draggable="true">Drag me</div>
+  <br>
+  <div id="dropZone">Drop here</div>
+
+  <script>
+    function getLocation() {
+      const output = document.getElementById("location");
+
+      if (!navigator.geolocation) {
+        output.textContent = "Geolocation is not supported.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          output.textContent =
+            "Latitude: " + position.coords.latitude +
+            ", Longitude: " + position.coords.longitude;
+        },
+        () => {
+          output.textContent = "Unable to get location.";
+        }
+      );
+    }
+
+    const dragItem = document.getElementById("dragItem");
+    const dropZone = document.getElementById("dropZone");
+
+    dragItem.addEventListener("dragstart", event => {
+      event.dataTransfer.setData("text/plain", event.target.id);
+    });
+
+    dropZone.addEventListener("dragover", event => {
+      event.preventDefault();
+    });
+
+    dropZone.addEventListener("drop", event => {
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text/plain");
+      dropZone.appendChild(document.getElementById(id));
+    });
+  </script>
+</body>
+</html>
